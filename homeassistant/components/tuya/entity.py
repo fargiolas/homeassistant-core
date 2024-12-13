@@ -40,6 +40,8 @@ class IntegerTypeData:
     step: float
     unit: str | None = None
     type: str | None = None
+    base_value: int = 10
+    base_step: int = 10
 
     @property
     def max_scaled(self) -> float:
@@ -54,15 +56,15 @@ class IntegerTypeData:
     @property
     def step_scaled(self) -> float:
         """Return the step scaled."""
-        return self.step / (10**self.scale)
+        return self.step / (self.base_step**self.scale)
 
     def scale_value(self, value: float) -> float:
         """Scale a value."""
-        return value / (10**self.scale)
+        return value / (self.base_value**self.scale)
 
     def scale_value_back(self, value: float) -> int:
         """Return raw value for scaled."""
-        return int(value * (10**self.scale))
+        return int(value * (self.base_value**self.scale))
 
     def remap_value_to(
         self,
@@ -248,6 +250,10 @@ class TuyaEntity(Entity):
                         )
                     ):
                         continue
+
+                    if self.device.product_id == "IAYz2WK1th0cMLmL":
+                        integer_type.base_value = 2
+
                     return integer_type
 
                 if dptype not in (DPType.ENUM, DPType.INTEGER):
